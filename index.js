@@ -6,6 +6,9 @@ app.use(express.json()); // convert raw text to js object
 const todoRoutes = require('./src/routes/todoRoutes');
 app.use('/api/todos', todoRoutes); //import route files & ('/api/todos handle by todoROutes)
 
+const authRoutes = require('./src/routes/authRoutes.js');
+app.use('/api/auth', authRoutes);
+
 const connectDB = require('./src/db.js');
 connectDB();
 
