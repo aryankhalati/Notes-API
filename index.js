@@ -9,6 +9,9 @@ app.use('/api/todos', todoRoutes); //import route files & ('/api/todos handle by
 const authRoutes = require('./src/routes/authRoutes.js');
 app.use('/api/auth', authRoutes);
 
+const noteRoutes = require('./src/routes/noteRoutes');
+app.use('/api/notes', noteRoutes);
+
 const connectDB = require('./src/db.js');
 connectDB();
 
