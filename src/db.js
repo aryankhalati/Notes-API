@@ -2,7 +2,7 @@ const mongoose = require('mongoose'); //import mongoose library
 
 const connectDB = async () => { // function will take time
     try {
-        await mongoose.connect('mongodb://localhost:27017/notesapp');
+        await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB connected');
     } // await wait for connection, then move frwd, dbname - notesapp
     catch (error) {

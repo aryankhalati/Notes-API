@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express'); //use express
 const app = express(); //server application
 
@@ -6,9 +7,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 app.use(express.json()); // convert raw text to js object
-
-
-
 
 app.use(cors());
 app.use(helmet());

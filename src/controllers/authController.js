@@ -42,7 +42,7 @@ const login = async (req, res) => {
      return res.status(500).json({message: "Password not verified"});
     }
 
-    const token = jwt.sign({id: user._id}, 'secret key', {expiresIn : '1d'});
+    const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '1d'});
 
     res.status(200).json({token});
   }
