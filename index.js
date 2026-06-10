@@ -1,4 +1,8 @@
 require('dotenv').config()
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./src/config/swagger');
+
+
 const express = require('express'); //use express
 const app = express(); //server application
 
@@ -29,6 +33,8 @@ app.use('/api/notes', noteRoutes);
 
 const connectDB = require('./src/db.js');
 connectDB();
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { swaggerOptions: { persistAuthorization: true } }));
 
 const errorMiddleware = require('./src/middleware/errorMiddleware');
 app.use(errorMiddleware);
