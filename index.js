@@ -10,7 +10,6 @@ const connectDB = require('./src/db.js');
 const swaggerSpec = require('./src/config/swagger');
 const authRoutes = require('./src/routes/authRoutes');
 const noteRoutes = require('./src/routes/noteRoutes');
-const todoRoutes = require('./src/routes/todoRoutes');
 const errorMiddleware = require('./src/middleware/errorMiddleware');
 
 const app = express();
@@ -40,7 +39,7 @@ app.use('/api/auth', authLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
-app.use('/api/todos', todoRoutes);
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     swaggerOptions: { persistAuthorization: true }

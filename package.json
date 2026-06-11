@@ -1,9 +1,9 @@
 {
   "name": "notes-api",
   "version": "1.0.0",
-  "description": "A secure REST API for notes and todos with JWT authentication",
+  "description": "A secure REST API for notes with JWT authentication",
   "main": "index.js",
-  "author": "Your Name",
+  "author": "Aryan Khalati",
   "license": "UNLICENSED",
   "keywords": ["nodejs", "express", "mongodb", "jwt", "rest-api"],
   "engines": {
