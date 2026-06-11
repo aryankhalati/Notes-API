@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const {createNote,getAllNotes,getOneNote, updateNote,deleteNote} = require('../controllers/noteController');
+const { createNote, getAllNotes, getOneNote, updateNote, deleteNote } = require('../controllers/noteController');
 const authMiddleware = require('../middleware/authMiddleware');
-const {validate} = require('../middleware/validateMiddleware');
-const {Note} = require('../validators/noteValidator')
+const { validate } = require('../middleware/validateMiddleware');
+const { noteSchema } = require('../validators/noteValidator');
 
 /**
  * @swagger
@@ -40,6 +40,8 @@ const {Note} = require('../validators/noteValidator')
  *       200:
  *         description: List of notes
  */
+router.post('/', authMiddleware, validate(noteSchema), createNote);
+router.get('/', authMiddleware, getAllNotes);
 
 /**
  * @swagger
@@ -60,6 +62,8 @@ const {Note} = require('../validators/noteValidator')
  *         description: Note found
  *       403:
  *         description: Not authorized
+ *       404:
+ *         description: Note not found
  *   put:
  *     summary: Update a note
  *     tags: [Notes]
@@ -76,6 +80,8 @@ const {Note} = require('../validators/noteValidator')
  *         description: Note updated
  *       403:
  *         description: Not authorized
+ *       404:
+ *         description: Note not found
  *   delete:
  *     summary: Delete a note
  *     tags: [Notes]
@@ -92,14 +98,11 @@ const {Note} = require('../validators/noteValidator')
  *         description: Note deleted
  *       403:
  *         description: Not authorized
+ *       404:
+ *         description: Note not found
  */
-
-router.get('/', authMiddleware, getAllNotes);
 router.get('/:id', authMiddleware, getOneNote);
+router.put('/:id', authMiddleware, validate(noteSchema), updateNote);
 router.delete('/:id', authMiddleware, deleteNote);
-router.post('/', authMiddleware, validate(Note), createNote);
-router.put('/:id', authMiddleware, validate(Note),updateNote);
-
 
 module.exports = router;
-

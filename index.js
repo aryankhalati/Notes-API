@@ -1,40 +1,54 @@
-require('dotenv').config()
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./src/config/swagger');
+require('dotenv').config();
+
 const express = require('express');
-const app = express();
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const swaggerUi = require('swagger-ui-express');
 
 const connectDB = require('./src/db.js');
-connectDB();
+const swaggerSpec = require('./src/config/swagger');
+const authRoutes = require('./src/routes/authRoutes');
+const noteRoutes = require('./src/routes/noteRoutes');
+const todoRoutes = require('./src/routes/todoRoutes');
+const errorMiddleware = require('./src/middleware/errorMiddleware');
+
+const app = express();
 
 app.use(express.json());
-app.use(cors());
 app.use(helmet());
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGIN || '*'
+}));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10
+    max: 20,
+    message: { error: 'Too many requests, please try again later.' }
 });
 app.use('/api/auth', limiter);
 
-const todoRoutes = require('./src/routes/todoRoutes');
+app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes);
 app.use('/api/todos', todoRoutes);
 
-const authRoutes = require('./src/routes/authRoutes.js');
-app.use('/api/auth', authRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: { persistAuthorization: true }
+}));
 
-const noteRoutes = require('./src/routes/noteRoutes');
-app.use('/api/notes', noteRoutes);
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { swaggerOptions: { persistAuthorization: true } }));
-
-const errorMiddleware = require('./src/middleware/errorMiddleware');
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch((err) => {
+        console.error('DB connection failed:', err);
+        process.exit(1);
+    });
