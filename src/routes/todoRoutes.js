@@ -1,10 +1,10 @@
-const express = require('express'); //import express
-const router = express.Router(); // minin router, handle only todo rltd routes
+const express = require('express');
+const router = express.Router();
+const { getAllTodos, createTodo, deleteTodo } = require('../controllers/todoControllers');
+const authMiddleware = require('../middleware/authMiddleware');
 
-const { getAllTodos, createTodo, deleteTodo} = require('../controllers/todoControllers'); // import function from controller file
+router.get('/', authMiddleware, getAllTodos);
+router.post('/', authMiddleware, createTodo);
+router.delete('/:id', authMiddleware, deleteTodo);
 
-router.get('/', getAllTodos); //route 1
-router.post('/', createTodo); // route 2
-router.delete('/:id', deleteTodo); // route 3 
-
-module.exports = router //to impoer to index.js
+module.exports = router;
