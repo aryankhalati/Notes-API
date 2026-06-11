@@ -6,13 +6,20 @@ const register = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
 
-        const existingUser = await User.findOne({ email });
+        // Normalize email before duplicate check so case variants are caught
+        const normalizedEmail = email.toLowerCase().trim();
+
+        const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const createdUser = await User.create({ name, email, password: hashedPassword });
+        const createdUser = await User.create({
+            name,
+            email: normalizedEmail,
+            password: hashedPassword
+        });
 
         res.status(201).json({
             message: 'User registered successfully',
@@ -29,7 +36,9 @@ const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email });
+        const normalizedEmail = email.toLowerCase().trim();
+
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -46,4 +55,16 @@ const login = async (req, res, next) => {
     }
 };
 
-module.exports = { register, login };
+const getMe = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ user });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { register, login, getMe };

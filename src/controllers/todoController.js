@@ -1,4 +1,8 @@
+const mongoose = require('mongoose');
 const Todo = require('../models/Todo');
+
+// Reusable ObjectId guard
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const getAllTodos = async (req, res, next) => {
     try {
@@ -21,11 +25,13 @@ const createTodo = async (req, res, next) => {
 
 const toggleTodo = async (req, res, next) => {
     try {
-        const todo = await Todo.findById(req.params.id);
-        if (!todo) return res.status(404).json({ message: 'Todo not found' });
+        if (!isValidId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid todo ID' });
+        }
 
-        if (todo.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        const todo = await Todo.findOne({ _id: req.params.id, userId: req.user.id });
+        if (!todo) {
+            return res.status(404).json({ message: 'Todo not found' });
         }
 
         todo.completed = !todo.completed;
@@ -39,14 +45,20 @@ const toggleTodo = async (req, res, next) => {
 
 const deleteTodo = async (req, res, next) => {
     try {
-        const todo = await Todo.findById(req.params.id);
-        if (!todo) return res.status(404).json({ message: 'Todo not found' });
-
-        if (todo.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        if (!isValidId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid todo ID' });
         }
 
-        await Todo.findByIdAndDelete(req.params.id);
+        // Atomic single-query ownership check + delete
+        const deletedTodo = await Todo.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user.id
+        });
+
+        if (!deletedTodo) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+
         res.json({ message: 'Todo deleted' });
     } catch (error) {
         next(error);

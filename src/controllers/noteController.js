@@ -1,4 +1,8 @@
+const mongoose = require('mongoose');
 const Note = require('../models/Note');
+
+// Reusable ObjectId guard
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const createNote = async (req, res, next) => {
     try {
@@ -21,12 +25,13 @@ const getAllNotes = async (req, res, next) => {
 
 const getOneNote = async (req, res, next) => {
     try {
-        const note = await Note.findById(req.params.id);
+        if (!isValidId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid note ID' });
+        }
 
-        if (!note) return res.status(404).json({ message: 'Note not found' });
-
-        if (note.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        const note = await Note.findOne({ _id: req.params.id, userId: req.user.id });
+        if (!note) {
+            return res.status(404).json({ message: 'Note not found' });
         }
 
         res.json(note);
@@ -37,19 +42,22 @@ const getOneNote = async (req, res, next) => {
 
 const updateNote = async (req, res, next) => {
     try {
-        const note = await Note.findById(req.params.id);
-        if (!note) return res.status(404).json({ message: 'Note not found' });
-
-        if (note.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        if (!isValidId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid note ID' });
         }
 
         const { title, content } = req.body;
-        const updatedNote = await Note.findByIdAndUpdate(
-            req.params.id,
+
+        // Atomic single-query ownership check + update
+        const updatedNote = await Note.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.id },
             { title, content },
-            { new: true }
+            { new: true, runValidators: true }
         );
+
+        if (!updatedNote) {
+            return res.status(404).json({ message: 'Note not found' });
+        }
 
         res.json(updatedNote);
     } catch (error) {
@@ -59,15 +67,20 @@ const updateNote = async (req, res, next) => {
 
 const deleteNote = async (req, res, next) => {
     try {
-        const note = await Note.findById(req.params.id);
-
-        if (!note) return res.status(404).json({ message: 'Note not found' });
-
-        if (note.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        if (!isValidId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid note ID' });
         }
 
-        await Note.findByIdAndDelete(req.params.id);
+        // Atomic single-query ownership check + delete
+        const deletedNote = await Note.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user.id
+        });
+
+        if (!deletedNote) {
+            return res.status(404).json({ message: 'Note not found' });
+        }
+
         res.json({ message: 'Note deleted' });
     } catch (error) {
         next(error);

@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { register, login } = require('../controllers/authController');
-const User = require('../models/User');
+const { register, login, getMe } = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
 const { registerSchema, loginSchema } = require('../validators/authValidator');
@@ -79,14 +78,9 @@ router.post('/login', validate(loginSchema), login);
  *         description: Returns user object
  *       401:
  *         description: Token not provided or invalid
+ *       404:
+ *         description: User not found
  */
-router.get('/me', authMiddleware, async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user.id).select('-password');
-        res.json({ user });
-    } catch (error) {
-        next(error);
-    }
-});
+router.get('/me', authMiddleware, getMe);
 
 module.exports = router;
