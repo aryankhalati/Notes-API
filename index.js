@@ -45,6 +45,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     swaggerOptions: { persistAuthorization: true }
 }));
 
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
