@@ -20,4 +20,16 @@ const loginSchema = z.object({
         .max(72, 'Password must be at most 72 characters')
 });
 
-module.exports = { registerSchema, loginSchema };
+const verifyOtpSchema = z.object({
+    email: z.string()
+        .email('Invalid email address'),
+    otp: z.string()
+        .length(6, 'OTP must be exactly 6 digits')
+});
+
+const resendOtpSchema = z.object({
+    email: z.string()
+        .email('Invalid email address')
+});
+
+module.exports = { registerSchema, loginSchema, verifyOtpSchema, resendOtpSchema };

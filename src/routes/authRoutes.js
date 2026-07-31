@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { register, login, getMe } = require('../controllers/authController');
+const { register, login, getMe, verifyOtp, resendOtp } = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
-const { registerSchema, loginSchema } = require('../validators/authValidator');
+const { registerSchema, loginSchema, verifyOtpSchema, resendOtpSchema } = require('../validators/authValidator');
 
 /**
  * @swagger
@@ -31,11 +31,68 @@ const { registerSchema, loginSchema } = require('../validators/authValidator');
  *                 type: string
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: User registered, verification email sent
  *       400:
  *         description: User already exists
  */
 router.post('/register', validate(registerSchema), register);
+
+/**
+ * @swagger
+ * /api/auth/verify-otp:
+ *   post:
+ *     summary: Verify a user's email using the OTP sent during registration
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Account verified successfully, returns JWT token
+ *       400:
+ *         description: Invalid or expired OTP
+ *       404:
+ *         description: User not found
+ */
+router.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
+
+/**
+ * @swagger
+ * /api/auth/resend-otp:
+ *   post:
+ *     summary: Resend a new OTP to an unverified user's email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: New OTP sent successfully
+ *       400:
+ *         description: Account already verified
+ *       404:
+ *         description: User not found
+ */
+router.post('/resend-otp', validate(resendOtpSchema), resendOtp);
 
 /**
  * @swagger
@@ -62,6 +119,8 @@ router.post('/register', validate(registerSchema), register);
  *         description: Returns JWT token
  *       401:
  *         description: Invalid credentials
+ *       403:
+ *         description: Email not verified
  */
 router.post('/login', validate(loginSchema), login);
 
