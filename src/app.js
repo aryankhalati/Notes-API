@@ -13,8 +13,22 @@ const app = express();
 
 app.use(express.json());
 app.use(helmet());
+
+const allowedOrigins = process.env.ALLOWED_ORIGIN
+    ? process.env.ALLOWED_ORIGIN.split(',').map(o => o.trim())
+    : ['*'];
+
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGIN || '*'
+    origin: function (origin, callback) {
+        // allow requests with no origin (like Postman, curl, mobile apps)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
 }));
 
 // Global limiter — applied to all /api routes

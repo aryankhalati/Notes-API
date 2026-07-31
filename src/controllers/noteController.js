@@ -16,7 +16,19 @@ const createNote = async (req, res, next) => {
 
 const getAllNotes = async (req, res, next) => {
     try {
-        const notes = await Note.find({ userId: req.user.id });
+        const { search } = req.query;
+
+        const query = { userId: req.user.id };
+
+        if (search) {
+            const searchRegex = new RegExp(search, 'i');
+            query.$or = [
+                { title: searchRegex },
+                { content: searchRegex }
+            ];
+        }
+
+        const notes = await Note.find(query);
         res.json(notes);
     } catch (error) {
         next(error);
