@@ -10,6 +10,7 @@ const noteRoutes = require('./routes/noteRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(helmet());
