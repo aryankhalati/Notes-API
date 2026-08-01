@@ -24,7 +24,7 @@ export default function Register() {
   return (
     <form onSubmit={handleSubmit}>
       <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="form-error">{error}</p>}
       <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />

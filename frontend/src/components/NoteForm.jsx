@@ -20,10 +20,10 @@ export default function NoteForm({ onCreated }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <form className="note-form" onSubmit={handleSubmit}>
+      {error && <p className="form-error">{error}</p>}
       <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      <textarea placeholder="Content" value={content} onChange={(e) => setContent(e.target.value)} required />
+      <textarea placeholder="Write a note..." value={content} onChange={(e) => setContent(e.target.value)} required />
       <button type="submit">Add Note</button>
     </form>
   );

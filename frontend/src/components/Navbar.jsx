@@ -6,16 +6,16 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   return (
-  <nav>
-    <Link to="/" style={{ fontWeight: 700 }}>Notes</Link>
-    {isAuthenticated ? (
-      <button onClick={() => { logout(); navigate("/login"); }}>Logout</button>
-    ) : (
-      <>
-        <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
-      </>
-    )}
-  </nav>
-);
+    <nav>
+      <Link to="/" className="navbar-brand">Notes</Link>
+      {isAuthenticated ? (
+        <button className="logout-btn" onClick={() => { logout(); navigate("/login"); }}>Logout</button>
+      ) : (
+        <>
+          <Link to="/login">Login</Link>
+          <Link to="/register">Register</Link>
+        </>
+      )}
+    </nav>
+  );
 }

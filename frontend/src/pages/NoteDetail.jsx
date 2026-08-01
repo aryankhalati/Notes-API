@@ -40,24 +40,34 @@ export default function NoteDetail() {
     navigate("/");
   };
 
-  if (notFound) return <p>Note not found. <Link to="/">Go back</Link></p>;
-  if (!note) return <p>Loading...</p>;
+  if (notFound) return <p className="page-message">Note not found. <Link to="/">Go back</Link></p>;
+  if (!note) return <p className="page-message">Loading...</p>;
 
-  return editing ? (
-    <div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <input value={title} onChange={(e) => setTitle(e.target.value)} />
-      <textarea value={content} onChange={(e) => setContent(e.target.value)} />
-      <button onClick={handleUpdate}>Save</button>
-      <button onClick={() => setEditing(false)}>Cancel</button>
-    </div>
-  ) : (
-    <div>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <button onClick={() => setEditing(true)}>Edit</button>
-      <button onClick={handleDelete}>Delete</button>
-      <Link to="/">Back</Link>
+  return (
+    <div className="note-detail">
+      {editing ? (
+        <>
+          {error && <p className="form-error">{error}</p>}
+          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} style={{ marginTop: "0.75rem", minHeight: "140px" }} />
+          <div className="note-detail-actions">
+            <button onClick={handleUpdate}>Save</button>
+            <button className="btn-secondary" onClick={() => setEditing(false)}>Cancel</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2>{note.title}</h2>
+          <p>{note.content}</p>
+          <div className="note-detail-actions">
+            <button onClick={() => setEditing(true)}>Edit</button>
+            <button className="btn-danger" onClick={handleDelete}>Delete</button>
+          </div>
+          <div>
+            <Link to="/" className="back-link">← Back to notes</Link>
+          </div>
+        </>
+      )}
     </div>
   );
 }

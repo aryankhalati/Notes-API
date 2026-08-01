@@ -30,13 +30,13 @@ export default function Notes() {
     setNotes((prev) => prev.filter((n) => n._id !== id));
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p style={{ padding: "2rem", textAlign: "center" }}>Loading...</p>;
 
   return (
     <div>
       <NoteForm onCreated={() => fetchNotes(search)} />
 
-      <div style={{ maxWidth: "900px", margin: "0 auto 1.5rem", padding: "0 1.5rem" }}>
+      <div className="search-bar">
         <input
           type="text"
           placeholder="Search notes..."
@@ -47,7 +47,9 @@ export default function Notes() {
 
       <div className="notes-grid">
         {notes.length === 0 ? (
-          <p>{search ? "No notes match your search." : "No notes yet. Add one above."}</p>
+          <p className="empty-state">
+            {search ? "No notes match your search." : "No notes yet — add your first one above."}
+          </p>
         ) : (
           notes.map((note) => (
             <NoteCard key={note._id} note={note} onDelete={handleDelete} />
