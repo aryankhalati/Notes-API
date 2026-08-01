@@ -14,7 +14,17 @@ export function AuthProvider({ children }) {
 
   const register = async (name, email, password) => {
     await api.post("/auth/register", { name, email, password });
-    await login(email, password); // register doesn't return a token
+    // no auto-login — account isn't verified yet, user must enter OTP first
+  };
+
+  const verifyOtp = async (email, otp) => {
+    const res = await api.post("/auth/verify-otp", { email, otp });
+    localStorage.setItem("token", res.data.token);
+    setToken(res.data.token);
+  };
+
+  const resendOtp = async (email) => {
+    await api.post("/auth/resend-otp", { email });
   };
 
   const logout = () => {
@@ -23,7 +33,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, register, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ token, login, register, verifyOtp, resendOtp, logout, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );
